@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class MandalartConfig(AppConfig):
+class MandalartsConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'mandalart'
+    name = 'mandalarts'
