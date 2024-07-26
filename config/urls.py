@@ -20,6 +20,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('users/', include('users.urls')), #users로 시작하는 모든것은 user.urls에서 찾아보라 라는 의미
     path('mandalarts/', include('mandalarts.urls')),
 ]
