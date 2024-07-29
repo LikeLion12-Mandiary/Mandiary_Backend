@@ -42,8 +42,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'mandalarts',
+    'diarys',
+    'todolists',
+    'rest_framework_simplejwt',
 ]
 
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 액세스 토큰의 수명을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=1),  # 리프레시 토큰의 수명을 하루로 설정
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 
 MIDDLEWARE = [
