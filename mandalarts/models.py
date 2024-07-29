@@ -18,7 +18,7 @@ class Mandalart(models.Model):
     def create_goals(self):
         for i in range(8):
             goal = Goal.objects.create(final_goal=self)
-            for i in range(8):
+            for j in range(8):
                 subgoal= SubGoal.objects.create(goal=goal)
 
     def generate_table_name(self):
