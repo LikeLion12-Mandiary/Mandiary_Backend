@@ -11,23 +11,45 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import os
+import os, json
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+secret_file = os.path.join(BASE_DIR, 'secrets.json')  # secrets.json 파일 위치를 명시
+
+with open(secret_file) as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ixrf#x&(48e3(#tod^x%4+%8+3@%67o03stjrnw5*x=q5w@z$y'
+# SECRET_KEY = 'django-insecure-ixrf#x&(48e3(#tod^x%4+%8+3@%67o03stjrnw5*x=q5w@z$y'
+SECRET_KEY = get_secret("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+# cs_web/settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.naver.com'
+EMAIL_HOST_USER = 'tjgustjr33@naver.com'  # 전체 이메일 주소 사용
+EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'tjgustjr33@naver.com'  # 전체 이메일 주소 사용
 
 
 # Application definition
@@ -42,8 +64,21 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'mandalarts',
+    'diarys',
+    'todolists',
+    'rest_framework_simplejwt',
 ]
 
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 액세스 토큰의 수명을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=1),  # 리프레시 토큰의 수명을 하루로 설정
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 
 MIDDLEWARE = [

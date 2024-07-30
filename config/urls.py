@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')), #users로 시작하는 모든것은 user.urls에서 찾아보라 라는 의미
     path('mandalarts/', include('mandalarts.urls')),
+    path('diarys/', include('diarys.urls')),
+    path('todolists/', include('todolists.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
