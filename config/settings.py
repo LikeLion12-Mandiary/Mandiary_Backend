@@ -45,11 +45,11 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.naver.com'
-EMAIL_HOST_USER = 'tjgustjr33@naver.com'  # 전체 이메일 주소 사용
+EMAIL_HOST_USER = 'tjgustjr16@naver.com'  # 전체 이메일 주소 사용
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'tjgustjr33@naver.com'  # 전체 이메일 주소 사용
+DEFAULT_FROM_EMAIL = 'tjgustjr16@naver.com'  # 전체 이메일 주소 사용
 
 
 # Application definition
