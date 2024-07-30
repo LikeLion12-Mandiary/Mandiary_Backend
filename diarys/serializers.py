@@ -7,4 +7,4 @@ class DiarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Diary
-        fields = ['id', 'content','image', 'created_at', 'updated_at', 'user']
+        fields = "__all__"
