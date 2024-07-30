@@ -1,12 +1,23 @@
 from rest_framework import serializers
 
-from mandalarts.models import Goal, Mandalart, SubGoal
+from mandalarts.models import Badge, BadgeUnlock, Goal, GoalAchievement, Mandalart, Notification, SubGoal
 
+### MANDALART ###
 class MandalartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mandalart
         fields = '__all__'
 
+class MandalartDetailSerializer(serializers.ModelSerializer):
+    goals= serializers.SerializerMethodField()
+    class Meta:
+        model = Mandalart
+        fields = ['user', 'table_name', 'title', 'created_at', 'completed', 'goals']
+    def get_goals(self, obj):
+        goals= Goal.objects.filter(final_goal=obj)
+        return GoalSerializer(goals, many=True).data
+
+### GOAL ###
 class GoalSerializer(serializers.ModelSerializer):
     subgoals = serializers.SerializerMethodField()
     class Meta:

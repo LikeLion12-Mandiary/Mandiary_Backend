@@ -13,7 +13,8 @@ class Mandalart(models.Model):
         if not self.table_name:
             self.table_name= self.generate_table_name()
         super().save(*args, **kwargs)
-        self.create_goals()
+        if not self.goal_set.exists():
+            self.create_goals()
 
     def create_goals(self):
         for i in range(8):
