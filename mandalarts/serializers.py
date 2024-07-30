@@ -52,3 +52,8 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields= '__all__'
+
+class GoalAchievementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=GoalAchievement
+        fields='__all__'

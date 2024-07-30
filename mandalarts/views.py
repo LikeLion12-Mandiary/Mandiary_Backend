@@ -201,3 +201,37 @@ class AlarmView(generics.ListAPIView):
     def get_queryset(self):
         return Notification.objects.filter(user=User.objects.get(id=1), is_read=False) ##request.user로 변경 필요
 
+
+#소감 작성
+"goalAchieve/<int:goal_id>/"
+class GoalAchieveView(generics.ListCreateAPIView):
+    serializer_class=GoalAchievementSerializer
+
+    def perform_create(self, serializer):
+        # user = self.request.user
+        user = User.objects.get(id=1)
+        goal_id = self.kwargs.get('goal_id') 
+        badge_id = self.request.data.get('badge_id') 
+        feedback = self.request.data.get('feedback', '')  
+
+        try:
+            goal = Goal.objects.get(id=goal_id)
+        except Goal.DoesNotExist:
+            raise serializers.ValidationError("목표가 존재하지 않습니다.")
+
+        if badge_id:
+            try:
+                badge = Badge.objects.get(id=badge_id)
+            except Badge.DoesNotExist:
+                raise serializers.ValidationError("뱃지가 존재하지 않습니다.")
+        else:
+            badge = None
+
+        # 기존 목표 달성 기록이 있는지 확인하고, 있으면 업데이트
+        user_goal_achievement, created = GoalAchievement.objects.update_or_create(
+            user=user,
+            achieved_goal=goal,
+            defaults={'badge': badge, 'feedback': feedback}
+        )
+        
+        return user_goal_achievement

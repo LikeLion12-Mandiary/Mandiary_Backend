@@ -53,3 +53,10 @@ class BadgeUnlock(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_unlocked = models.BooleanField(default=False)
     unlock_notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
+
+class GoalAchievement(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    achieved_goal = models.ForeignKey(Goal, on_delete=models.CASCADE)
+    achievement_date = models.DateField(auto_now_add=True)
+    feedback = models.CharField(null=True, blank=True, max_length=18)
+    goal_badge = models.ForeignKey(Badge, null=True, blank=True, on_delete=models.RESTRICT)
