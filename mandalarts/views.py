@@ -16,7 +16,6 @@ class MandalartCreateView(APIView):
     def post(self, request):
         superuser = User.objects.get(id=1)
         mandalart = Mandalart.objects.create(user=superuser)
-        # mandalart.save()
         serializer =MandalartSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -122,3 +121,83 @@ def update_mandalart_status(mandalart):
     else:
         mandalart.completed = True
     mandalart.save()
+
+#관리자(뱃지 생성)
+"badge/"
+class BadgeCreateView(generics.CreateAPIView):
+    serializer_class=BadgeSerializer
+    queryset=Badge.objects.all()
+
+#모든 뱃지
+"mybadge/"
+class BadgeView(generics.ListAPIView):
+    serializer_class=BadgeSerializer
+    queryset=Badge.objects.all()
+
+#뱃지 잠금 해제
+"badgeUnlock/<int:badge_unlock_id>/<int:badge_id>/"
+class BadgeUnlockView(generics.UpdateAPIView):
+    serializers_class = BadgeUnlockSerializer
+    queryset=BadgeUnlock.objects.all()
+    
+    def update(self, request, *args, **kwargs):
+        badge_unlock_id= kwargs.get('badge_unlock_id')
+        badge_id= kwargs.get('badge_id')
+        
+        #BadgeUnlock
+        try:
+            badge_unlock= BadgeUnlock.objects.get(id=badge_unlock_id, is_unlocked=False) #나중에 user=request.user 추가
+        except BadgeUnlock.DoesNotExist:
+            return Response({"message":"올바르지 않는 Badge Unlock id입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 잠금해제 할 Badge
+        try:
+            badge = Badge.objects.get(id=badge_id) 
+            if badge.unlocked == True:
+                return Response({"message":"잠금 해제가 이미 되어있는 뱃지입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except Badge.DoesNotExist:
+            return Response({"message":"존재하지 않는 뱃지입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        badge_unlock.is_unlocked = True
+        badge_unlock.save()
+
+        notification = badge_unlock.unlock_notification
+        notification.unlockable_badge_count -= 1
+        if notification.unlockable_badge_count == 0:
+            notification.is_read = True
+        notification.save()
+
+        badge.unlocked = True
+        badge.save()
+
+        return Response({"message":"뱃지가 잠금해제 되었습니다."}, status=status.HTTP_200_OK)
+
+#잠금 해제한 뱃지
+"UnlockedBadge/"
+class UnlockedBadgeView(generics.ListAPIView):
+    serializer_class=BadgeSerializer
+    queryset=Badge.objects.filter(unlocked=True)
+
+
+#나의 칭호
+"badgeTitle/"
+class BadgeTitleView(generics.ListAPIView):
+    serializer_class=BadgeTitleSerializer
+    queryset=Badge.objects.filter(unlocked=True)
+
+
+#랜덤칭호 표시
+
+
+
+
+
+
+
+#알람
+"notifi/"
+class AlarmView(generics.ListAPIView):
+    serializer_class=NotificationSerializer
+    def get_queryset(self):
+        return Notification.objects.filter(user=User.objects.get(id=1), is_read=False) ##request.user로 변경 필요
+

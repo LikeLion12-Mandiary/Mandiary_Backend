@@ -24,10 +24,31 @@ class GoalSerializer(serializers.ModelSerializer):
         model = Goal
         fields = ['title', 'completed', 'subgoals']
     def get_subgoals(self, obj):
-        subgoals = SubGoal.objects.filter(goal_id=obj.id)
+        subgoals = SubGoal.objects.filter(goal=obj)
         return SubGoalSerializer(subgoals, many=True).data
 
+###SUBGOAL###
 class SubGoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubGoal
+        fields= ['id', 'title','image','completed']
+
+class BadgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Badge
+        fields='__all__'
+
+class BadgeTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Badge
+        fields=['id', 'title']
+
+class BadgeUnlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BadgeUnlock
+        field='__all__'
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields= '__all__'

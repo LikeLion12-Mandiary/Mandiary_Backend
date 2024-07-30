@@ -36,3 +36,20 @@ class SubGoal(models.Model):
     title = models.CharField(null=True, blank=True, max_length=18, default='')
     image= models.ImageField(upload_to='mandalart/', null=True, blank=True)
     completed = models.BooleanField(default=False)
+
+class Badge(models.Model):
+    title = models.CharField(null=False,blank=False, max_length=18)
+    image = models.ImageField(upload_to='badge', null=True, blank=True)
+    unlocked = models.BooleanField(default=False)
+    #이때 잠금해제할 수 있었던 goal을 표시해야 중복으로 잠금해제하는 걸 막을 수 있을거 같음
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.CharField(max_length=64)
+    is_read = models.BooleanField(default=False)
+    unlockable_badge_count= models.IntegerField(default=0)
+
+class BadgeUnlock(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_unlocked = models.BooleanField(default=False)
+    unlock_notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
