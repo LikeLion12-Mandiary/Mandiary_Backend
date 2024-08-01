@@ -45,12 +45,11 @@ ALLOWED_HOSTS = ['*']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.naver.com'
-EMAIL_HOST_USER = 'tjgustjr16@naver.com'  # 전체 이메일 주소 사용
+EMAIL_HOST_USER = 'tjgustjr16@naver.com'  # Naver에 로그인할 이메일 주소
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'tjgustjr16@naver.com'  # 전체 이메일 주소 사용
-
+DEFAULT_FROM_EMAIL = 'tjgustjr16@naver.com'  # 발신 이메일 주소와 동일하게 설정
 
 # Application definition
 
@@ -71,8 +70,8 @@ INSTALLED_APPS = [
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 액세스 토큰의 수명을 30분으로 설정
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=1),  # 리프레시 토큰의 수명을 하루로 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  # 액세스 토큰의 수명을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),  # 리프레시 토큰의 수명을 하루로 설정
 }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
