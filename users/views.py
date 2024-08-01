@@ -4,7 +4,7 @@ from users.serializers import UserSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.generics import CreateAPIView, RetrieveDestroyAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from .permissions import IsOwnerOrReadOnly
@@ -39,8 +39,18 @@ class UserCreateAPIView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-# 프로필 보기, 삭제
-class ProfileAPIView(RetrieveDestroyAPIView):
+
+#이메일 중복 확인
+class UserEmailCheckAPIView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get('email')
+        if User.objects.filter(email=email).exists():
+            return Response({'이미 사용중인 이메일입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'사용 가능한 이메일입니다.'}, status=status.HTTP_200_OK)
+# 마이프로필
+class ProfileAPIView(RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
