@@ -9,5 +9,4 @@ class Diary(models.Model):
     content = models.TextField(max_length=1000, null=True, blank=True)
     image = models.ImageField(upload_to=diary_directory_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='diarys')
