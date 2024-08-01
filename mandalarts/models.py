@@ -40,8 +40,14 @@ class SubGoal(models.Model):
 class Badge(models.Model):
     title = models.CharField(null=False,blank=False, max_length=18)
     image = models.ImageField(upload_to='badge', null=True, blank=True)
-    unlocked = models.BooleanField(default=False)
-    #이때 잠금해제할 수 있었던 goal을 표시해야 중복으로 잠금해제하는 걸 막을 수 있을거 같음
+    created_at = models.DateTimeField(default=timezone.now)
+
+class UserBadge(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
+    unlocked= models.BooleanField(default=False)
+    unlocked_at=models.DateField(null=True, blank=True)
+    goal= models.ForeignKey(Goal, on_delete=models.RESTRICT, null=True, blank=True)
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
