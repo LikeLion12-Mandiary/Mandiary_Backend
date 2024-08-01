@@ -1,3 +1,5 @@
+import random
+from django.utils import timezone
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -8,44 +10,57 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from mandalarts.models import Badge, BadgeUnlock, Goal, Mandalart, Notification
+from mandalarts.permissions import IsOwnerOrReadOnly
 from mandalarts.serializers import *
 from users.models import User
 
 #만다라트 생성
 "createMandalart/"
 class MandalartCreateView(APIView):
+    permission_classes=[IsAuthenticated]
     def post(self, request):
-        superuser = User.objects.get(id=1)
-        mandalart = Mandalart.objects.create(user=superuser)
+        user = request.user
+        mandalart = Mandalart.objects.create(user=user)
         serializer =MandalartSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 #만다라트 개별 조회(mandalart,goal,subgoal 모두 표시)
 "Mandalart_detail/<int:table_id>/"
 class MandalartDetailView(generics.RetrieveAPIView):
+    permission_classes=[IsOwnerOrReadOnly]
     serializer_class = MandalartDetailSerializer
-    queryset = Mandalart.objects.all()
+    def get_queryset(self):
+        return Mandalart.objects.filter(user=self.request.user)
     lookup_field='id'   
     lookup_url_kwarg='table_id'
 
 #진행중인 만다라트
-
-
-
-
-
+"inprogress/"
+class InProgressMandalarListView(generics.ListAPIView):
+    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
+    serializer_class= MandalartSerializer
+    def get_queryset(self):
+        return Mandalart.objects.filter(completed=False, user=self.request.user)
 
 #완료한 만다라트
+"complete/"
+class CompleteMandalartListView(generics.ListAPIView):
+    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
+    serializer_class= MandalartSerializer
+    def get_queryset(self):
+        return Mandalart.objects.filter(completed=True, user=self.request.user)
 
-
-
-#만다라트 table_name 편집
+#만다라트 table_name, title 편집
 "Mandalart/<int:table_id>/"
 class MandalartUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
     serializer_class = MandalartSerializer
-    queryset = Mandalart.objects.all()
-    lookup_field='id'   
+    lookup_field='id' 
     lookup_url_kwarg='table_id'
+    def get_queryset(self):
+        return Mandalart.objects.filter(user=self.request.user)
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
 
 #목표(Goal) 상세보기 및 편집
 "goal/<int:table_id>/<int:goal_index>/"
