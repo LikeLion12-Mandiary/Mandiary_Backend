@@ -63,32 +63,43 @@ class MandalartUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         serializer.save(user=self.request.user)
 
 #목표(Goal) 상세보기 및 편집
-"goal/<int:table_id>/<int:goal_index>/"
+"goal/<int:table_id>/<int:goal_id>/"
 class GoalView(generics.RetrieveUpdateAPIView):
+    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
     serializer_class = GoalSerializer
     def get_object(self):
-        table_id= self.kwargs.get('table_id')
-        goal_index= self.kwargs.get('goal_index') #index 범위(0~7)
+        table_id = self.kwargs.get('table_id')
+        goal_id = self.kwargs.get('goal_id')
         try:
-            mandalart= Mandalart.objects.get(id=table_id)
+            mandalart = Mandalart.objects.get(user=self.request.user, id=table_id)
         except Mandalart.DoesNotExist:
-            Response(status=status.HTTP_404_NOT_FOUND)
-        
-        goals = Goal.objects.filter(final_goal=mandalart).order_by('id')
-        
-        if goal_index >= len(goals) or goal_index < 0:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        return goals[goal_index]
+        try:
+            goal = Goal.objects.get(id=goal_id, final_goal=mandalart)
+        except Goal.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return goal
 
 #세부목표 수정(상태, TITLE, IMAGE)
 "subgoalUpdate/<int:subgoal_id>/"
 class SubGoalUpdateView(generics.UpdateAPIView):
+    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
     serializer_class= SubGoalSerializer
-    queryset= SubGoal.objects.all()
     lookup_field= 'id'
     lookup_url_kwarg= 'subgoal_id'
+    def get_queryset(self):
+        user=self.request.user
+        # subgoals= SubGoal.objects.filter(user__mandalart__goal=self.request.user)
 
+        mandalarts = Mandalart.objects.filter(user=user)
+        goals = Goal.objects.filter(final_goal__in=mandalarts)
+        queryset = SubGoal.objects.filter(goal__in=goals)
+
+        print("Queryset:", queryset)
+
+        return queryset
+    
     def perform_update(self, serializer):
         subgoal = serializer.save()
         update_goal_status(subgoal.goal)
@@ -102,28 +113,22 @@ def update_goal_status(goal):
         goal.completed = True
         goal.save()
 
-        ######user 변경 필요#######
-        superuser=User.objects.get(id=1)
-        # user = goal.final_goal.user
-        ##########################
-
+        user = goal.final_goal.user
         notification, created = Notification.objects.get_or_create(
-            user=superuser,
-            # user=user,
-            # defaults={'message': '목표를 달성하셨습니다 :) 1개의 뱃지를 잠금해제 해보세요!', 'unlockable_badge_count': 1}
+            user=user,
             message=f"목표를 달성하셨습니다 :) 1개의 뱃지를 잠금해제 해보세요!",
             unlockable_badge_count=1
         )
         if not created:
             notification.unlockable_badge_count += 1
+            notification.save()
             notification.message = f"목표를 달성하셨습니다 :) {notification.unlockable_badge_count}개의 뱃지를 잠금해제 해보세요!"
             notification.save()
 
-        available_badge = Badge.objects.filter(unlocked=False).first()
+        available_badge = UserBadge.objects.filter(unlocked=False).first()
         if available_badge:
-            BadgeUnlock.objects.create(
-                user=superuser,
-                # user=user,
+            BadgeUnlock.objects.get_or_create(
+                user=user,
                 is_unlocked=False,
                 unlock_notification=notification
             )
