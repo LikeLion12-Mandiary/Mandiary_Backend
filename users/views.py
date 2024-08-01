@@ -60,7 +60,7 @@ class EmailConfirmAPIView(APIView):
             send_mail(
                 'Your Password Reset Code',
                 f'Use this code to reset your password: {code}',
-                'tjgustjr33@naver.com',
+                'tjgustjr16@naver.com',
                 [email],
             )
             return Response({'인증코드를 보냈습니다.'}, status=status.HTTP_200_OK)
