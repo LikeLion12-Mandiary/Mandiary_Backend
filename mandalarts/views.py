@@ -290,3 +290,72 @@ class AlarmView(generics.ListAPIView):
     serializer_class=NotificationSerializer
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user, is_read=False)
+
+#소감 작성 (pass)
+"goal/<int:goal_id>/achievements/"
+class GoalAchieveView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        goal_id = self.kwargs.get('goal_id')
+        user = request.user
+
+        # 목표 확인
+        try:
+            goal = Goal.objects.get(id=goal_id)
+        except Goal.DoesNotExist:
+            return Response({"detail": "목표가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        # 목표 달성 기록 조회
+        achievements = GoalAchievement.objects.filter(user=user, achieved_goal=goal)
+        serializer = GoalAchievementSerializer(achievements, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        goal_id = self.kwargs.get('goal_id')
+
+        badge_id = request.data.get('badge_id')
+        feedback = request.data.get('feedback', '')
+
+        try:
+            goal = Goal.objects.get(id=goal_id)
+        except Goal.DoesNotExist:
+            return Response({"detail": "목표가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        # 뱃지 확인 (optinal)
+        badge = None
+        if badge_id:
+            try:
+                badge = UserBadge.objects.get(id=badge_id).badge  # UserBadge에서 Badge 추출
+            except UserBadge.DoesNotExist:
+                return Response({"detail": "뱃지가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # 기존 목표 달성 기록 확인
+        existing_achievement = GoalAchievement.objects.filter(
+            user=user,
+            achieved_goal=goal
+        ).first()
+
+        if existing_achievement:
+            # 이미 존재하는 목표 달성 기록이 있는 경우 예외 발생
+            return Response({"detail": "이미 목표 달성 기록이 존재합니다. 기록을 변경할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 목표 달성 기록 생성
+        serializer = GoalAchievementSerializer(data={
+            'user': user.id,
+            'achieved_goal': goal.id,
+            'badge': badge.id if badge else None,
+            'feedback': feedback
+        })
+
+        if serializer.is_valid():
+            serializer.save(
+                user=user,
+                achieved_goal=goal,
+                badge=badge,
+                feedback=feedback
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
