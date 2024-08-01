@@ -3,6 +3,10 @@ from django.utils import timezone
 
 from users.models import User
 
+def mandalart_directory_path(instance, filename):
+    # 파일을 'user_<id>/<filename>' 경로에 업로드합니다.
+    return f'user_{instance.user.id}/mandalart/{filename}'
+
 class Mandalart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     table_name = models.CharField(max_length=18, default='')
@@ -35,7 +39,7 @@ class Goal(models.Model):
 class SubGoal(models.Model):
     goal = models.ForeignKey(Goal, on_delete=models.CASCADE, default='')
     title = models.CharField(null=True, blank=True, max_length=18, default='')
-    image= models.ImageField(upload_to='mandalart/', null=True, blank=True)
+    image= models.ImageField(upload_to=mandalart_directory_path, null=True, blank=True)
     completed = models.BooleanField(default=False)
 
 class Badge(models.Model):
