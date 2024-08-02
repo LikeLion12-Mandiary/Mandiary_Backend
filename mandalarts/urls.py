@@ -11,16 +11,18 @@ urlpatterns = [
     path('inprogress/', InProgressMandalarListView.as_view()),
     path('complete/', CompleteMandalartListView.as_view()),
     path('Mandalart/<int:table_id>/', MandalartUpdateDestroyView.as_view()),
+    path('Mandalart-Goal/<int:table_id>/', MandalartGoalUpdateView.as_view()),
 
     #goal, subgoal
     path('goal/<int:table_id>/<int:goal_id>/',GoalView.as_view()),
     path('subgoalUpdate/<int:subgoal_id>/', SubGoalUpdateView.as_view()),
     path('goal/<int:goal_id>/achievements/', GoalAchieveView.as_view()),
+    path('goal/edit/<int:goal_id>/',GoalUpdateView.as_view()),
 
 
     #badge
     path('badge/',BadgeCreateView.as_view()),#관리자
-    path('badgeUnlock/<int:badge_id>/', BadgeUnlockView.as_view()),
+    path('badgeUnlock/<int:userbadge_id>/', BadgeUnlockView.as_view()),
     path('mybadge/', BadgeView.as_view()), #all badge
     path('UnlockedBadge/', UnlockedBadgeView.as_view()), #
 
@@ -29,5 +31,6 @@ urlpatterns = [
     path('dailyBadge/', DailyBadgeTitleView.as_view()),
 
     #알림
-    path('notifi/',AlarmView.as_view()),
+    path('notifi/',NotificationView.as_view()),
+    path('notifi/status/',NotificationStatusView.as_view()),
 ]

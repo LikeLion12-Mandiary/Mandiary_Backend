@@ -5,12 +5,12 @@ from users.models import User
 
 def mandalart_directory_path(instance, filename):
     # 파일을 'user_<id>/<filename>' 경로에 업로드합니다.
-    return f'user_{instance.user.id}/mandalart/{filename}'
+    return f'user_{instance.goal.final_goal.user.id}/mandalart/{filename}'
 
 class Mandalart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     table_name = models.CharField(max_length=18, default='')
-    title = models.CharField(null=True, max_length=18, default='')
+    man_title = models.CharField(null=True, max_length=18, default='')
     created_at = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
 
@@ -33,17 +33,17 @@ class Mandalart(models.Model):
 
 class Goal(models.Model):
     final_goal = models.ForeignKey(Mandalart, on_delete= models.CASCADE, default='')
-    title = models.CharField(null=True, blank=True, max_length=18, default='')
+    goal_title = models.CharField(null=True, blank=True, max_length=18, default='')
     completed = models.BooleanField(default=False)
 
 class SubGoal(models.Model):
     goal = models.ForeignKey(Goal, on_delete=models.CASCADE, default='')
-    title = models.CharField(null=True, blank=True, max_length=18, default='')
+    subgoal_title = models.CharField(null=True, blank=True, max_length=18, default='')
     image= models.ImageField(upload_to=mandalart_directory_path, null=True, blank=True)
     completed = models.BooleanField(default=False)
 
 class Badge(models.Model):
-    title = models.CharField(null=False,blank=False, max_length=18)
+    badge_title = models.CharField(null=False,blank=False, max_length=18)
     image = models.ImageField(upload_to='badge', null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -52,7 +52,7 @@ class UserBadge(models.Model):
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
     unlocked= models.BooleanField(default=False)
     unlocked_at=models.DateField(null=True, blank=True)
-    goal= models.ForeignKey(Goal, on_delete=models.RESTRICT, null=True, blank=True)
+    goal= models.ForeignKey(Goal, on_delete=models.RESTRICT, null=True, blank=True)  # 중복 잠금해제 제한
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -66,14 +66,16 @@ class BadgeUnlock(models.Model):
     is_unlocked = models.BooleanField(default=False)
     unlock_notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
 
+class DailyBadge(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    badge= models.ForeignKey(Badge, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField(auto_now=True)
+
 class GoalAchievement(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     achieved_goal = models.ForeignKey(Goal, on_delete=models.CASCADE)
     achievement_date = models.DateField(auto_now_add=True)
     feedback = models.CharField(null=True, blank=True, max_length=18)
-    badge = models.ForeignKey(UserBadge, null=True, blank=True, on_delete=models.RESTRICT)
-
-class DailyBadge(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    badge= models.ForeignKey(Badge, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateField(auto_now=True)
+    user_badge = models.ForeignKey(UserBadge, null=True, blank=True, on_delete=models.RESTRICT)
+    class Meta:
+        unique_together = ('user', 'achieved_goal')  # 한 목표에 대해 하나의 뱃지만 선택 가능
