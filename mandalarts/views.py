@@ -135,7 +135,7 @@ def update_goal_status(goal):
         )
         if not created:
             notification.unlockable_badge_count += 1
-            notification.message = f"목표를 달성하셨습니다 :) {notification.unlockable_badge_count +1}개의 뱃지를 잠금해제 해보세요!"
+            notification.message = f"목표를 달성하셨습니다 :) {notification.unlockable_badge_count}개의 뱃지를 잠금해제 해보세요!"
             notification.save()
 
         if UserBadge.objects.filter(unlocked=False).first():         #잠금해제 할 뱃지 유무
@@ -220,9 +220,10 @@ class BadgeUnlockView(generics.UpdateAPIView):
         badge_unlock.save()
 
         notification = badge_unlock.unlock_notification
-        if notification.unlockable_badge_count -1 == 0:
+        if notification.unlockable_badge_count == 1:
             notification.unlockable_badge_count -= 1
             notification.is_read = True
+        notification.unlockable_badge_count -= 1
         notification.message = f"목표를 달성하셨습니다 :) {notification.unlockable_badge_count}개의 뱃지를 잠금해제 해보세요!" # msg 업데이트
         notification.save()
 
@@ -255,50 +256,29 @@ class BadgeTitleView(generics.ListAPIView):
 
 #랜덤칭호 표시
 "dailyBadge/"
-class DailyBadgeTitleView(generics.RetrieveAPIView):
+class DailyBadgeTitleView(APIView):
     permission_classes=[IsAuthenticated]
-    serializer_class=DailyBadgeSerializer
 
     def get(self, request, *args, **kwargs):
         user=request.user
         daily_badge= set_daily_badge_title(user)
-        serializer = self.get_serializer(daily_badge)
+        # serializer = self.get_serializer(daily_badge)
+        return Response({'dialy_badge':daily_badge}, status=status.HTTP_200_OK)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 def set_daily_badge_title(user):
-    today = timezone.now().date()
-    daily_badge, created = DailyBadge.objects.get_or_create(user=user)
-
-    unlocked_badges_ids = list(UserBadge.objects.filter(user=user, unlocked=True).values_list('badge', flat=True))
+    unlocked_userbadges = UserBadge.objects.filter(user=user, unlocked=True)
+    unlocked_badge_ids = unlocked_userbadges.values_list('badge_id', flat=True)
+    unlocked_badges = Badge.objects.filter(id__in=unlocked_badge_ids)
     
-    if created or daily_badge.date != today:
-        if unlocked_badges_ids:
-            badge_id = random.choice(unlocked_badges_ids)
-            daily_badge.badge = UserBadge.objects.get(id=badge_id)
-            
-        else:
-            daily_badge.badge = None
-        daily_badge.date = today
-        daily_badge.save()
+    if unlocked_badges.exists():
+        random_badge = random.choice(unlocked_badges)
+        badge_title = random_badge.badge_title
+    else:
+        badge_title = "No unlocked badges available"
 
-    return daily_badge
-
-def set_daily_badge_titlewef(user):
-    today = timezone.now().date()
-    daily_badge, created = DailyBadge.objects.get_or_create(user=user, defaults={'date': today})
-
-    unlocked_badges = list(UserBadge.objects.filter(user=user, unlocked=True).values_list('badge', flat=True))
-
-    if created or daily_badge.date != today:
-        if unlocked_badges:
-            badge_id = random.choice(unlocked_badges)
-            daily_badge.badge = UserBadge.objects.get(id=badge_id)
-        else:
-            daily_badge.badge = None
-        daily_badge.date = today
-        daily_badge.save()
-
-    return daily_badge
+    return badge_title
 
 #알람
 "notifi/"
@@ -316,7 +296,7 @@ class NotificationStatusView(APIView):
         return Response({'has_notifications':has_notifications}, status=status.HTTP_200_OK)
     
 
-#소감 작성 (pass)
+#소감 작성
 "goal/<int:goal_id>/achievements/"
 class GoalAchieveView(APIView):
     permission_classes=[IsAuthenticated]
@@ -324,13 +304,10 @@ class GoalAchieveView(APIView):
     def get(self, request, *args, **kwargs):
         goal_id = self.kwargs.get('goal_id')
         user = request.user
-
-        # 목표 확인
         try:
             goal = Goal.objects.get(id=goal_id)
         except Goal.DoesNotExist:
             return Response({"detail": "목표가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
-
         # 목표 달성 기록 조회
         achievements = GoalAchievement.objects.filter(user=user, achieved_goal=goal)
         serializer = GoalAchievementSerializer(achievements, many=True)
@@ -366,6 +343,8 @@ class GoalAchieveView(APIView):
                 return Response({"detail": "이미 뱃지를 선택한 소감이 존재합니다. 기록을 변경할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 existing_achievement.feedback = feedback
+                if userbadge_id:
+                    existing_achievement.user_badge=user_badge
                 existing_achievement.save()
                 return Response(GoalAchievementSerializer(existing_achievement).data, status=status.HTTP_200_OK)
         
@@ -378,12 +357,6 @@ class GoalAchieveView(APIView):
         })
 
         if serializer.is_valid():
-            # serializer.save(
-            #     user=user,
-            #     achieved_goal=goal,
-            #     user_badge=user_badge,
-            #     feedback=feedback
-            # )
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:

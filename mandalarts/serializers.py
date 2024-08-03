@@ -71,16 +71,20 @@ class UserBadgeTitleSerializer(serializers.ModelSerializer):
     def get_badge_title(self, obj):
         return obj.badge.badge_title if obj.badge else None
     
-class DailyBadgeSerializer(serializers.ModelSerializer):
-    badge_title = serializers.SerializerMethodField()
+# class DailyBadgeSerializer(serializers.ModelSerializer):
+#     badge_title = serializers.SerializerMethodField()
 
-    class Meta:
-        model = DailyBadge
-        fields = ['user', 'badge', 'badge_title', 'date']  # Include valid fields
+#     class Meta:
+#         model = DailyBadge
+#         fields = ['user', 'badge', 'badge_title', 'date']  # Include valid fields
 
-    def get_badge_title(self, obj):
-        # Ensure obj has 'badge' attribute
-        return obj.user_badge.badge_title if obj.user_badge else None
+#     def get_badge_title(self, obj):
+#         # Ensure obj has 'badge' attribute
+#         return obj.user_badge.badge_title if obj.user_badge else None
+    
+class DailyBadgeSerializer(serializers.Serializer):
+    dailybadge=serializers.CharField()
+
 
 class BadgeUnlockSerializer(serializers.ModelSerializer):
     class Meta:
@@ -92,8 +96,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields= ['message']
 
-class NotificationStatusSerializer(serializers.Serializer):
-    has_notification = serializers.BooleanField()
+# class NotificationStatusSerializer(serializers.Serializer):
+#     has_notification = serializers.BooleanField()
 
 class GoalAchievementSerializer(serializers.ModelSerializer):
     class Meta:
