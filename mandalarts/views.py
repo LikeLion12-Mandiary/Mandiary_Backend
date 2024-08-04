@@ -22,7 +22,7 @@ class MandalartCreateView(APIView):
         user = request.user
         Mandalart.objects.filter(user=user, is_selected=True).update(is_selected=False)
         mandalart = Mandalart.objects.create(user=user, is_selected=True)
-        serializer =MandalartSerializer(mandalart)
+        serializer =MandalartBaseSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 #대표 만다라트 표시
@@ -43,7 +43,7 @@ class SelectMainMandalartView(APIView):
         Mandalart.objects.filter(user=request.user, is_selected=True).update(is_selected=False)
         mandalart.is_selected = True
         mandalart.save()  
-        serializer = MandalartSerializer(mandalart)
+        serializer = MandalartBaseSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
