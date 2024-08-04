@@ -70,13 +70,16 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS= {
-    "http://3.38.46.212/"
+CORS_ALLOWED_ORIGINS= [
+    "http://3.38.46.212",
     "http://localhost:8080",
-    "http://localhost:5500",
     "http://127.0.0.1:8000",
-    "http://127.0.0.1:5500"
-}
+    "http://3.38.46.212:8000",
+    "http://3.38.46.212:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+
 CORS_ALLOW_METHODS = [  # 허용할 옵션
     "DELETE",
     "GET",
