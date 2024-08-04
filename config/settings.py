@@ -73,7 +73,9 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW= {
     'http://3.38.46.212/',
     "http://localhost:8080",
-    "http://127.0.0.1:8000"
+    "http://localhost:5500",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:5500"
 }
 CORS_ALLOW_METHODS = [  # 허용할 옵션
     "DELETE",
@@ -88,8 +90,8 @@ CORS_ALLOW_METHODS = [  # 허용할 옵션
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),  
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=6),  
 }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
