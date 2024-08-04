@@ -71,12 +71,12 @@ INSTALLED_APPS = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS= [
-    "http://3.38.46.212",
-    "http://localhost:8080",
-    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://localhost:5500",
+    "http://3.38.46.212:80",
     "http://3.38.46.212:8000",
     "http://3.38.46.212:5500",
-    "http://localhost:5500",
+    "http://127.0.0.1:8000",
     "http://127.0.0.1:5500",
 ]
 
@@ -116,10 +116,8 @@ REST_FRAMEWORK = {
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.common.CommonMiddleware', 
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -151,16 +149,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'mandiary',
+#         'USER' : 'admin',
+#         'PASSWORD' : 'lion0909!!', # 설정한 비밀번호로 적어주면 된다.
+#         'HOST' : 'database-1.cnyc60mgcyro.ap-northeast-2.rds.amazonaws.com',
+#         'PORT' : '3306',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mandiary',
-        'USER' : 'admin',
-        'PASSWORD' : 'lion0909!!', # 설정한 비밀번호로 적어주면 된다.
-        'HOST' : 'database-1.cnyc60mgcyro.ap-northeast-2.rds.amazonaws.com',
-        'PORT' : '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
