@@ -70,11 +70,16 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW= {
-    'http://3.35.183.233/',
+CORS_ALLOWED_ORIGINS= [
+    "http://3.38.46.212",
     "http://localhost:8080",
-    "http://127.0.0.1:8000"
-}
+    "http://127.0.0.1:8000",
+    "http://3.38.46.212:8000",
+    "http://3.38.46.212:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500",
+]
+
 CORS_ALLOW_METHODS = [  # 허용할 옵션
     "DELETE",
     "GET",
@@ -83,13 +88,23 @@ CORS_ALLOW_METHODS = [  # 허용할 옵션
     "POST",
     "PUT",
 ]
-
+CORS_ALLOW_HEADERS = [ # 허용할 헤더
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),  
-    'REFRESH_TOKEN_LIFETIME': timedelta(hours=3),  
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=3),  
+    'REFRESH_TOKEN_LIFETIME': timedelta(hours=6),  
 }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -136,20 +151,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'hackathon',
-#         'USER' : 'hackathon',
-#         'PASSWORD' : 'hackathon', # 설정한 비밀번호로 적어주면 된다.
-#         'HOST' : '3.35.183.233',
-#         'PORT' : '3306',
-#     }
-# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mandiary',
+        'USER' : 'admin',
+        'PASSWORD' : 'lion0909!!', # 설정한 비밀번호로 적어주면 된다.
+        'HOST' : 'database-1.cnyc60mgcyro.ap-northeast-2.rds.amazonaws.com',
+        'PORT' : '3306',
     }
 }
 
@@ -192,7 +202,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT= '/home/ec2-user/Mandiary_Backend/static/' #배포시
+STATIC_ROOT= '/home/ubuntu/Mandiary_Backend/static/' #배포시
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
