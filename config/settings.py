@@ -71,7 +71,7 @@ INSTALLED_APPS = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW= {
-    'http://3.38.46.212/',
+    "http://3.38.46.212/"
     "http://localhost:8080",
     "http://localhost:5500",
     "http://127.0.0.1:8000",
@@ -85,7 +85,17 @@ CORS_ALLOW_METHODS = [  # 허용할 옵션
     "POST",
     "PUT",
 ]
-
+CORS_ALLOW_HEADERS = [ # 허용할 헤더
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 
 from datetime import timedelta
