@@ -71,7 +71,7 @@ INSTALLED_APPS = [
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW= {
-    'http://3.35.183.233/',
+    'http://3.38.46.212/',
     "http://localhost:8080",
     "http://127.0.0.1:8000"
 }
