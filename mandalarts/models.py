@@ -13,6 +13,8 @@ class Mandalart(models.Model):
     man_title = models.CharField(null=True, max_length=18, default='')
     created_at = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    is_selected = models.BooleanField(default=False)  # 새로운 필드 추가
+
 
     def save(self, *args, **kwargs):
         if not self.table_name:
@@ -65,11 +67,6 @@ class BadgeUnlock(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     is_unlocked = models.BooleanField(default=False)
     unlock_notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
-
-class DailyBadge(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    badge= models.ForeignKey(Badge, on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateField(auto_now=True)
 
 class GoalAchievement(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
