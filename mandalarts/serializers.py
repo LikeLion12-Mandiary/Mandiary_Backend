@@ -4,10 +4,15 @@ from mandalarts.models import *
 from users.serializers import UserSerializer
 
 ### MANDALART ###
-class MandalartSerializer(serializers.ModelSerializer):
+class MandalartBaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mandalart
         fields = '__all__'
+        
+class MandalartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mandalart
+        fields = ['user','table_name', 'man_title','created_at', 'completed']
         extra_kwargs = {'user': {'required': False}}
 
 class MandalartDetailSerializer(serializers.ModelSerializer):
@@ -70,21 +75,6 @@ class UserBadgeTitleSerializer(serializers.ModelSerializer):
         fields= ['badge_title']
     def get_badge_title(self, obj):
         return obj.badge.badge_title if obj.badge else None
-    
-# class DailyBadgeSerializer(serializers.ModelSerializer):
-#     badge_title = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = DailyBadge
-#         fields = ['user', 'badge', 'badge_title', 'date']  # Include valid fields
-
-#     def get_badge_title(self, obj):
-#         # Ensure obj has 'badge' attribute
-#         return obj.user_badge.badge_title if obj.user_badge else None
-    
-class DailyBadgeSerializer(serializers.Serializer):
-    dailybadge=serializers.CharField()
-
 
 class BadgeUnlockSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,22 +86,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields= ['message']
 
-# class NotificationStatusSerializer(serializers.Serializer):
-#     has_notification = serializers.BooleanField()
-
 class GoalAchievementSerializer(serializers.ModelSerializer):
     class Meta:
         model=GoalAchievement
         fields='__all__'
-
-# class UserGoalAchievementSerializer(serializers.ModelSerializer):
-#     badge = serializers.PrimaryKeyRelatedField(queryset=Badge.objects.all(), required=False)
-#     comment = serializers.CharField(allow_blank=True, required=False)
-
-#     class Meta:
-#         model = UserGoalAchievement
-#         fields = ['id', 'user', 'achieved_goal', 'badge', 'comment']
-#         extra_kwargs = {
-#             'user': {'read_only': True},  # 사용자는 요청에 의해 설정되지 않음
-#             'achieved_goal': {'read_only': True},  # 목표는 요청에 의해 설정되지 않음
-#         }

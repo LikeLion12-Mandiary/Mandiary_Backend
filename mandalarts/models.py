@@ -13,6 +13,8 @@ class Mandalart(models.Model):
     man_title = models.CharField(null=True, max_length=18, default='')
     created_at = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    is_selected = models.BooleanField(default=False)  # 새로운 필드 추가
+
 
     def save(self, *args, **kwargs):
         if not self.table_name:

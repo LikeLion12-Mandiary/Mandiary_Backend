@@ -1,6 +1,6 @@
 import random
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
@@ -20,9 +20,32 @@ class MandalartCreateView(APIView):
     permission_classes=[IsAuthenticated]
     def post(self, request):
         user = request.user
-        mandalart = Mandalart.objects.create(user=user)
+        Mandalart.objects.filter(user=user, is_selected=True).update(is_selected=False)
+        mandalart = Mandalart.objects.create(user=user, is_selected=True)
         serializer =MandalartSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#대표 만다라트 표시
+"select/Mandalart/<int:mandalart_id>/"
+class SelectMainMandalartView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        mandalart_id = kwargs.get('mandalart_id')
+        if not mandalart_id:
+            return Response({"detail": "mandalart_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            mandalart = Mandalart.objects.get(id=mandalart_id, user=request.user)
+        except Mandalart.DoesNotExist:
+            return Response({"detail": "Mandalart not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        Mandalart.objects.filter(user=request.user, is_selected=True).update(is_selected=False)
+        mandalart.is_selected = True
+        mandalart.save()  
+        serializer = MandalartSerializer(mandalart)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 #만다라트 개별 조회(mandalart,goal,subgoal 모두 표시)
 "Mandalart_detail/<int:table_id>/"
@@ -34,13 +57,14 @@ class MandalartDetailView(generics.RetrieveAPIView):
     lookup_field='id'   
     lookup_url_kwarg='table_id'
 
-#진행중인 만다라트
+#진행중인 만다라트(selected mandalart먼저 보여줌)
 "inprogress/"
 class InProgressMandalarListView(generics.ListAPIView):
-    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
-    serializer_class= MandalartSerializer
+    permission_classes = [IsAuthenticated]
+    serializer_class = MandalartSerializer
+
     def get_queryset(self):
-        return Mandalart.objects.filter(completed=False, user=self.request.user)
+        return Mandalart.objects.filter(completed=False, user=self.request.user).order_by('-is_selected', 'created_at')
 
 #완료한 만다라트
 "complete/"

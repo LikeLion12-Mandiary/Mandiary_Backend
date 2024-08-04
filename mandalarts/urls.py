@@ -7,6 +7,7 @@ app_name= 'mandalarts'
 urlpatterns = [
     #mandalart
     path('createMandalart/', MandalartCreateView.as_view()),
+    path('select/Mandalart/<int:mandalart_id>/', SelectMainMandalartView.as_view()),
     path('Mandalart_detail/<int:table_id>/', MandalartDetailView.as_view()),
     path('inprogress/', InProgressMandalarListView.as_view()),
     path('complete/', CompleteMandalartListView.as_view()),
