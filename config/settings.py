@@ -73,11 +73,16 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS= [
     "http://localhost:8000",
     "http://localhost:5500",
-    "http://3.38.46.212:80",
+    "http://localhost:443",
+
     "http://3.38.46.212:8000",
     "http://3.38.46.212:5500",
+    "http://3.38.46.212:443",
+
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5500",
+    "http://127.0.0.1:443",
+
 ]
 
 CORS_ALLOW_METHODS = [  # 허용할 옵션
