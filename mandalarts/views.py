@@ -354,7 +354,7 @@ class GoalAchieveView(APIView):
         user_badge = None
         if userbadge_id:
             try:
-                user_badge = UserBadge.objects.get(id=userbadge_id, unlocked=True)  # UserBadge에서 Badge 추출
+                user_badge = UserBadge.objects.get(user=user, id=userbadge_id, unlocked=True)  # UserBadge에서 Badge 추출
                 print(user_badge)
             except UserBadge.DoesNotExist:
                 return Response({"detail": "뱃지가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)

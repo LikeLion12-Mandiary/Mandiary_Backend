@@ -86,7 +86,6 @@ class GoalBaseSerializer(serializers.ModelSerializer):
         model = Goal
         fields=['id', 'goal_title', 'completed']
 
-
 #goal-mandalart
 class MandalartGoalSerializer(serializers.ModelSerializer):
     goals = serializers.SerializerMethodField()
