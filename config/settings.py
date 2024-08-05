@@ -151,14 +151,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mandiary',
-        'USER' : 'admin',
-        'PASSWORD' : 'lion0909!!', # 설정한 비밀번호로 적어주면 된다.
-        'HOST' : 'database-1.cnyc60mgcyro.ap-northeast-2.rds.amazonaws.com',
-        'PORT' : '3306',
+      'ENGINE': 'django.db.backends.mysql',
+      'NAME': 'mandiary',
+      'USER' : 'admin',
+      'PASSWORD' : 'lion0909!!', # 설정한 비밀번호로 적어주면 된다.
+      'HOST' : 'database-1.cnyc60mgcyro.ap-northeast-2.rds.amazonaws.com',
+      'PORT' : '3306',
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
