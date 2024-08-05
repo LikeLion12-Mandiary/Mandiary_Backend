@@ -61,7 +61,7 @@ class MandalartDetailView(generics.RetrieveAPIView):
 "inprogress/"
 class InProgressMandalarListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = MandalartSerializer
+    serializer_class = MandalartMypageSerializer
 
     def get_queryset(self):
         return Mandalart.objects.filter(completed=False, user=self.request.user).order_by('-is_selected', 'created_at')
@@ -70,7 +70,7 @@ class InProgressMandalarListView(generics.ListAPIView):
 "complete/"
 class CompleteMandalartListView(generics.ListAPIView):
     permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
-    serializer_class= MandalartSerializer
+    serializer_class= MandalartMypageSerializer
     def get_queryset(self):
         return Mandalart.objects.filter(completed=True, user=self.request.user)
 
@@ -354,13 +354,13 @@ class GoalAchieveView(APIView):
         user_badge = None
         if userbadge_id:
             try:
-                user_badge = UserBadge.objects.get(id=userbadge_id)  # UserBadge에서 Badge 추출
+                user_badge = UserBadge.objects.get(id=userbadge_id, unlocked=True)  # UserBadge에서 Badge 추출
                 print(user_badge)
             except UserBadge.DoesNotExist:
                 return Response({"detail": "뱃지가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
         
         # 기존 목표 달성 기록 확인
-        existing_achievement = GoalAchievement.objects.get(user=user, achieved_goal=goal)
+        existing_achievement = GoalAchievement.objects.filter(user=user, achieved_goal=goal).first()
 
         if existing_achievement:
             if existing_achievement.user_badge:
