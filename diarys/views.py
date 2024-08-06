@@ -30,12 +30,7 @@ class DiaryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsOwnerOrReadOnly]
     lookup_field = 'id'
     lookup_url_kwarg = 'diary_id'
-
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response({"게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
-
+    
     def perform_destroy(self, instance):
         # image1과 image2가 존재할 경우 파일 삭제
         if instance.image1:
