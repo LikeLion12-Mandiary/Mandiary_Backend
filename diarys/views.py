@@ -37,19 +37,33 @@ class DiaryRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         return Response({"게시글이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
     def perform_destroy(self, instance):
-        if instance.image:
-            image_path = instance.image.path
-            if os.path.isfile(image_path):
-                os.remove(image_path)
+        # image1과 image2가 존재할 경우 파일 삭제
+        if instance.image1:
+            image1_path = instance.image1.path
+            if os.path.isfile(image1_path):
+                os.remove(image1_path)
+        
+        if instance.image2:
+            image2_path = instance.image2.path
+            if os.path.isfile(image2_path):
+                os.remove(image2_path)
+
         instance.delete()
 
     def perform_update(self, serializer):
         instance = serializer.instance
         
         # 기존 이미지가 제거되는 경우
-        if 'image' in self.request.data and not self.request.data['image']:
-            if instance.image:
-                image_path = instance.image.path
-                if os.path.isfile(image_path):
-                    os.remove(image_path)
+        if 'image1' in self.request.data and not self.request.data['image1']:
+            if instance.image1:
+                image1_path = instance.image1.path
+                if os.path.isfile(image1_path):
+                    os.remove(image1_path)
+
+        if 'image2' in self.request.data and not self.request.data['image2']:
+            if instance.image2:
+                image2_path = instance.image2.path
+                if os.path.isfile(image2_path):
+                    os.remove(image2_path)
+
         serializer.save()
