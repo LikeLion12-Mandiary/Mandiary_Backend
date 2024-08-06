@@ -121,14 +121,10 @@ class GoalView(generics.RetrieveAPIView):
         goal_id = self.kwargs.get('goal_id')
         try:
             mandalart = Mandalart.objects.get(user=self.request.user, id=table_id)
+            goal = get_object_or_404(Goal,id=goal_id, final_goal=mandalart)
+            return goal
         except Mandalart.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        try:
-            goal = Goal.objects.get(id=goal_id, final_goal=mandalart)
-        except Goal.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        return goal
 
 #세부목표 수정(상태, TITLE, IMAGE)
 "subgoalUpdate/<int:subgoal_id>/"
