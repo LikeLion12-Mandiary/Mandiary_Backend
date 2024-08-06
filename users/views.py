@@ -83,13 +83,10 @@ class PasswordChangeAPIView(APIView):
         email = request.data.get('email')
         confirm_code = request.data.get('confirm_code')
         new_password = request.data.get('new_password')
-        check_new_password = request.data.get('check_new_password')
         user = User.objects.filter(email=email).first()
         if user and user.reset_code == confirm_code:
-            if check_new_password == new_password:
-                user.set_password(new_password)
-                user.reset_code = ''
-                user.save()
-                return Response({'비밀번호를 재설정 했습니다.'}, status=status.HTTP_200_OK)
-            return Response({'비밀번호가 일치하지 않습니다.'}, status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(new_password)
+            user.reset_code = ''
+            user.save()
+            return Response({'비밀번호를 재설정 했습니다.'}, status=status.HTTP_200_OK)
         return Response({'올바르지 않은 이메일 혹은 인증번호입니다.'}, status=status.HTTP_400_BAD_REQUEST)
