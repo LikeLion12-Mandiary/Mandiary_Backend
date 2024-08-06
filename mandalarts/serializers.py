@@ -42,6 +42,12 @@ class MandalartSerializer(serializers.ModelSerializer):
         extra_kwargs = {'user': {'required': False}}
 
 
+class GoalAchievementBadgeSerializer(serializers.ModelSerializer):
+    user_badge = UserBadgeSerializer(read_only=True)
+    class Meta:
+        model=GoalAchievement
+        fields=['user_badge']
+
 class GoalBadgeSerializer(serializers.ModelSerializer):  ###########
     selected_badge = serializers.SerializerMethodField()
     class Meta:
@@ -54,12 +60,6 @@ class GoalBadgeSerializer(serializers.ModelSerializer):  ###########
         except GoalAchievement.DoesNotExist:
             return None
         
-class GoalAchievementBadgeSerializer(serializers.ModelSerializer):
-    user_badge = UserBadgeSerializer(read_only=True)
-    class Meta:
-        model=GoalAchievement
-        fields=['user_badge']
-
 class MandalartMypageSerializer(serializers.ModelSerializer):################
     goals = serializers.SerializerMethodField()
     serializers.SerializerMethodField()
