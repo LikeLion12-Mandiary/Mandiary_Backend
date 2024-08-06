@@ -1,6 +1,7 @@
 from django.urls import path
 
-from mandalarts.views import *
+from mandalarts.views.mandalart_views  import *
+from mandalarts.views.badgeNoti_views import *
 
 app_name= 'mandalarts'
 
