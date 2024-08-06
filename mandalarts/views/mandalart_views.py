@@ -3,6 +3,7 @@ from rest_framework.generics import *
 from rest_framework.views import APIView
 
 from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import PermissionDenied
 
 from mandalarts.permissions import IsOwnerOrReadOnly
 from ..models import *
@@ -42,7 +43,6 @@ class SelectMainMandalartView(APIView):
         serializer = MandalartBaseSerializer(mandalart)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
 #만다라트 개별 조회(mandalart,goal,subgoal 모두 표시)
 "Mandalart_detail/<int:table_id>/"
 class MandalartDetailView(generics.RetrieveAPIView):
@@ -53,7 +53,7 @@ class MandalartDetailView(generics.RetrieveAPIView):
     lookup_field='id'   
     lookup_url_kwarg='table_id'
 
-#진행중인 만다라트(selected mandalart먼저 보여줌)
+#진행중인 만다라트(selected mandalart 먼저 보여줌)
 "inprogress/"
 class InProgressMandalarListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -105,9 +105,7 @@ class GoalUpdateView(generics.UpdateAPIView):
         # mandalarts = Mandalart.objects.filter(user=self.request.user)
         return Goal.objects.filter(final_goal__in=mandalart_ids)
 
-
-##########제거??????????
-#목표(Goal) 상세보기 및 편집
+#목표(Goal) 상세보기
 "goal/<int:table_id>/<int:goal_id>/"
 class GoalView(generics.RetrieveAPIView):
     permission_classes=[IsAuthenticated]
@@ -125,51 +123,57 @@ class GoalView(generics.RetrieveAPIView):
 #세부목표 수정(상태, TITLE, IMAGE)
 "subgoalUpdate/<int:subgoal_id>/"
 class SubGoalUpdateView(generics.UpdateAPIView):
-    permission_classes=[IsAuthenticated]
-    serializer_class= SubGoalSerializer
-    lookup_field= 'id'
-    lookup_url_kwarg= 'subgoal_id'
+    permission_classes = [IsAuthenticated]
+    serializer_class = SubGoalSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'subgoal_id'
+
     def get_queryset(self):
-        user=self.request.user
+        user = self.request.user
         mandalarts = Mandalart.objects.filter(user=user)
         goals = Goal.objects.filter(final_goal__in=mandalarts)
-        queryset = SubGoal.objects.filter(goal__in=goals)           #request.user가 작성한 subgoal
-        return queryset
-    
+        return SubGoal.objects.filter(goal__in=goals)  # request.user가 작성한 subgoal
+
     def perform_update(self, serializer):
         subgoal = serializer.save()
-        update_goal_status(subgoal.goal)
+        goal = subgoal.goal
+        
+        if goal.completed:
+            raise PermissionDenied("이미 달성된 목표의 상태를 변경할 수 없습니다.")
+        
+        update_goal_status(goal)
 
 def update_goal_status(goal):
     """GOAL 상태 변경"""
     if not goal.subgoal_set.filter(completed=False).exists():
         user = goal.final_goal.user
-        notification, created = Notification.objects.get_or_create(
+        notification = Notification.objects.filter(
             user=user,
-            message=f"목표를 달성하셨습니다 :) 1개의 뱃지를 잠금해제 해보세요!",
-            unlockable_badge_count=1
-        )
-        if not created:
+            message__icontains="목표를 달성하셨습니다 :)",
+            unlockable_badge_count__lte=1
+        ).first()
+        if not notification:
+            notification = Notification.objects.create(
+                user=user,
+                message="목표를 달성하셨습니다 :) 1개의 뱃지를 잠금해제 해보세요!",
+                unlockable_badge_count=1
+            )
+        else:
             notification.unlockable_badge_count += 1
             notification.message = f"목표를 달성하셨습니다 :) {notification.unlockable_badge_count}개의 뱃지를 잠금해제 해보세요!"
             notification.save()
-
-        if UserBadge.objects.filter(unlocked=False).first():         #잠금해제 할 뱃지 유무
-            BadgeUnlock.objects.create(
+        if UserBadge.objects.filter(user=user, unlocked=False).exists():
+            BadgeUnlock.objects.get_or_create(
                 user=user,
-                is_unlocked=False,
-                unlock_notification=notification
+                unlock_notification=notification,
+                defaults={'is_unlocked': False}
             )
-        
         goal.completed = True
         goal.save()
-        
         update_mandalart_status(goal.final_goal)
-    
     else:
         goal.completed = False
-
-    goal.save()
+        goal.save()
 
 def update_mandalart_status(mandalart):
     """MANDALART 상태 변경"""
@@ -178,8 +182,6 @@ def update_mandalart_status(mandalart):
     else:
         mandalart.completed = True
     mandalart.save()
-
-
     
 #소감 작성
 "goal/<int:goal_id>/achievements/"
