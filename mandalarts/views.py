@@ -113,8 +113,8 @@ class GoalUpdateView(generics.UpdateAPIView):
 ##########제거??????????
 #목표(Goal) 상세보기 및 편집
 "goal/<int:table_id>/<int:goal_id>/"
-class GoalView(generics.RetrieveUpdateAPIView): #update 삭제
-    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
+class GoalView(generics.RetrieveAPIView):
+    permission_classes=[IsAuthenticated]
     serializer_class = GoalSerializer
     def get_object(self):
         table_id = self.kwargs.get('table_id')
@@ -197,7 +197,7 @@ class BadgeCreateView(generics.CreateAPIView):
 #모든 뱃지
 "mybadge/"
 class BadgeView(generics.ListAPIView):
-    permission_classes=[IsOwnerOrReadOnly, IsAuthenticated]
+    permission_classes=[ IsAuthenticated]
     serializer_class=UserBadgeSerializer
     def get_queryset(self):
         return UserBadge.objects.filter(user=self.request.user)
