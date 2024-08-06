@@ -7,7 +7,7 @@ from users.serializers import UserSerializer
 class BadgeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Badge
-        fields='__all__'
+        fields=['badge_title', 'image']
 
 class UserBadgeSerializer(serializers.ModelSerializer):
     badge=BadgeSerializer()
@@ -70,6 +70,22 @@ class MandalartMypageSerializer(serializers.ModelSerializer):################
         goals= Goal.objects.filter(final_goal=obj)
         return GoalBadgeSerializer(goals, many=True, context=self.context).data
 
+class GoalBadgeSerializer2(serializers.ModelSerializer):  ###########
+    selected_badge = serializers.SerializerMethodField()
+    subgoals = serializers.SerializerMethodField()
+    class Meta:
+        model = Goal
+        fields=['id', 'goal_title', 'completed', 'selected_badge', 'subgoals']
+    def get_selected_badge(self,obj):
+        try:
+            achievement = GoalAchievement.objects.get(achieved_goal=obj)
+            return GoalAchievementBadgeSerializer(achievement).data
+        except GoalAchievement.DoesNotExist:
+            return None
+    def get_subgoals(self, obj):
+        subgoals = SubGoal.objects.filter(goal=obj)
+        return SubGoalSerializer(subgoals, many=True).data
+
 class MandalartDetailSerializer(serializers.ModelSerializer):
     goals= serializers.SerializerMethodField()
     class Meta:
@@ -77,7 +93,7 @@ class MandalartDetailSerializer(serializers.ModelSerializer):
         fields = ['user', 'table_name', 'man_title', 'created_at', 'completed', 'goals']
     def get_goals(self, obj):
         goals= Goal.objects.filter(final_goal=obj)
-        return GoalSerializer(goals, many=True).data
+        return GoalBadgeSerializer2(goals, many=True).data
 
 
 ### GOAL ###
