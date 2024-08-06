@@ -83,6 +83,7 @@ CORS_ALLOWED_ORIGINS= [
     "http://127.0.0.1:5500",
     "http://127.0.0.1:443",
 
+    "https://mandiary.duckdns.org:443",
 ]
 
 CORS_ALLOW_METHODS = [  # 허용할 옵션
