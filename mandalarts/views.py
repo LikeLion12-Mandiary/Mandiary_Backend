@@ -273,6 +273,7 @@ class BadgeTitleView(generics.ListAPIView):
     def get_queryset(self):
         return UserBadge.objects.filter(user=self.request.user, unlocked=True)
 
+#모든 칭호(test용)
 "AllBadgeTitle/"
 class AllBadgeTitleView(generics.ListAPIView):
     permission_classes=[IsAuthenticated]
@@ -291,8 +292,6 @@ class DailyBadgeTitleView(APIView):
         daily_badge= set_daily_badge_title(user)
         # serializer = self.get_serializer(daily_badge)
         return Response({'dialy_badge':daily_badge}, status=status.HTTP_200_OK)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 def set_daily_badge_title(user):
     unlocked_userbadges = UserBadge.objects.filter(user=user, unlocked=True)
