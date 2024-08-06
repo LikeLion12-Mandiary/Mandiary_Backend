@@ -28,6 +28,7 @@ urlpatterns = [
     path('UnlockedBadge/', UnlockedBadgeView.as_view()), #
 
     #badge_title
+    path('AllBadgeTitle/', AllBadgeTitleView.as_view()), #모든 칭호 test
     path('badgeTitle/', BadgeTitleView.as_view()), #칭호
     path('dailyBadge/', DailyBadgeTitleView.as_view()),
 

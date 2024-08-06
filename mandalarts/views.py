@@ -277,6 +277,13 @@ class BadgeTitleView(generics.ListAPIView):
     def get_queryset(self):
         return UserBadge.objects.filter(user=self.request.user, unlocked=True)
 
+"AllBadgeTitle/"
+class AllBadgeTitleView(generics.ListAPIView):
+    permission_classes=[IsAuthenticated]
+
+    serializer_class=UserBadgeTitleSerializer
+    def get_queryset(self):
+        return UserBadge.objects.filter(user=self.request.user)
 
 #랜덤칭호 표시
 "dailyBadge/"
